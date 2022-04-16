@@ -1,14 +1,27 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:basic_time_tracker_flutter/Controll_Component.dart';
 import 'package:basic_time_tracker_flutter/List_Component.dart';
+import 'package:basic_time_tracker_flutter/TopBar.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'data.dart' as data;
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() {
   runApp(const MyApp());
+  doWhenWindowReady(() {
+    final win = appWindow;
+    final initialSize = Size(720, 480);
+    win.minSize = initialSize;
+    win.size = initialSize;
+    win.alignment = Alignment.center;
+    win.title = "Time Tracker";
+    win.show();
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -36,46 +49,35 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<void> writeToFile() async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    File file = File(appDocPath + "\\exportList.json");
-    // Write the file
-    file.writeAsString(jsonEncode(data.entries));
-    final snackBar = SnackBar(
-      content: Text('Liste exported to ' + file.path.toString()),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-              onPressed: () {
-                writeToFile();
-              },
-              icon: Icon(Icons.save))
-        ],
-      ),
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: WindowBorder(
+        color: Colors.transparent,
+        width: 0,
+        child: Column(
           children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width -
-                  MediaQuery.of(context).size.width / 3,
-              height: double.infinity,
-              child: ListComponent(),
+            TopBar(),
+            Expanded(
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width -
+                          MediaQuery.of(context).size.width / 3,
+                      height: double.infinity,
+                      child: ListComponent(),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: double.infinity,
+                      child: ControllComponent(),
+                    )
+                  ],
+                ),
+              ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
-              height: double.infinity,
-              child: ControllComponent(),
-            )
           ],
         ),
       ),
